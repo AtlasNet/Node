@@ -1,5 +1,11 @@
 {
-	"host": "127.0.0.1",
-	"port": 1957,
-	"name": "Test Node One"
+ "host": "127.0.0.1", 
+ "known_nodes": [
+  [
+   "127.0.0.1", 
+   1958
+  ]
+ ], 
+ "port": 1957, 
+ "name": "Test Node One"
 }

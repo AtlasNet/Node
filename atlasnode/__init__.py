@@ -9,12 +9,12 @@ protocol_version = 1
 
 class Config (dict):
     def load(self, path):
-        self.paht = path
+        self.path = path
         self.clear()
         self.update(json.load(open(path)))
 
     def save(self):
-        open(self.path, 'w').write(json.dumps(self))
+        open(self.path, 'w').write(json.dumps(self, indent=True))
 
 
 class Nodes (object):
@@ -57,6 +57,11 @@ class Nodes (object):
             client = self.connection(descriptor)
             if client:
                 yield client
+
+    def release(self):
+        for client in self.clients.values():
+            if client:
+                client.disconnect()
 
 
 config = Config()

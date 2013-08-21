@@ -18,28 +18,17 @@ import atlasnode.log
 import atlasnode.patch
 
 
-def run():
-    atlasnode.log.init()
-
-    atlasnode.config.load(sys.argv[1])
-
+def bootstrap():
     known_nodes = atlasnode.config.get('known_nodes', [])
-    atlasnode.nodes.load(known_nodes)
-    
-    atlasnode.info = AtlasNodeInfo()
-    atlasnode.info.host = atlasnode.config['host']
-    atlasnode.info.port = atlasnode.config['port']
-    atlasnode.info.name = atlasnode.config['name']
-    atlasnode.info.protocolVersion = atlasnode.protocol_version
-        
-    logging.info('This is node %s' % atlasnode.info.get_name())
 
     bootstrap_node = None
-    known_nodes = atlasnode.nodes.list()
-    random.shuffle(known_nodes)
-    for node in known_nodes:
+    temp_nodeset = atlasnode.Nodes()
+    temp_nodeset.load(known_nodes)
+    shuffled_nodes = temp_nodeset.list()
+    random.shuffle(shuffled_nodes)
+    for node in shuffled_nodes:
         logging.info('Probing node %s:%i' % node)
-        client = atlasnode.nodes.connection(node)
+        client = temp_nodeset.connection(node)
         if client:
             client.connect()
             logging.info('Received info:' + str(client.node_info))
@@ -52,7 +41,28 @@ def run():
     else:
         logging.info('Registering on the network')
         bootstrap_node.client.hello(atlasnode.info)
-        bootstrap_node.disconnect()
+        nodes = bootstrap_node.client.getKnownNodes()
+        atlasnode.nodes.load([x.get_descriptor() for x in nodes])
+        logging.info('Bootstrap complete with %i nodes in the list' % len(nodes))
+
+    temp_nodeset.release()
+
+
+def run():
+    atlasnode.log.init()
+
+    atlasnode.config.load(sys.argv[1])
+
+    
+    atlasnode.info = AtlasNodeInfo()
+    atlasnode.info.host = atlasnode.config['host']
+    atlasnode.info.port = atlasnode.config['port']
+    atlasnode.info.name = atlasnode.config['name']
+    atlasnode.info.protocolVersion = atlasnode.protocol_version
+        
+    logging.info('This is node %s' % atlasnode.info.get_name())
+
+    gevent.spawn(bootstrap)
 
     processor = lambda: AtlasNode.Processor(Handler())
     transport = TSocket.TServerSocket(
@@ -63,6 +73,8 @@ def run():
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
     def stop():
+        atlasnode.config['known_nodes'] = atlasnode.nodes.list()
+        atlasnode.config.save()
         sys.exit(0)
 
     gevent.signal(signal.SIGTERM, stop)
