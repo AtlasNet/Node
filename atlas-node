@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+import atlasnode.core
+
+if __name__ == '__main__':
+    atlasnode.core.run()
