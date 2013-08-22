@@ -7,8 +7,8 @@ from atlasnode.protocol.Node import AtlasNode
 
 
 class Client (object):
-    def __init__(self, host, port):
-        transport = TSocket.TSocket(host, port)
+    def __init__(self, node):
+        transport = TSocket.TSocket(str(node.host), int(node.port))
         self.transport = TTransport.TBufferedTransport(transport)
         protocol = TBinaryProtocol.TBinaryProtocol(transport)
         self.client = AtlasNode.Client(protocol)

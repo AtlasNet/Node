@@ -13,14 +13,14 @@ class Handler (object):
 
     def hello(self, info):
         self.node_info = info
-        logging.info('Node %s joined the network through this node' % info.get_name())
+        logging.debug('Node %s joined the network through this node' % info.get_name())
         for client in atlasnode.nodes.connect_all():
             client.client.registerNode(info, atlasnode.info)
         atlasnode.nodes.register(info)
 
     def registerNode(self, info, via):
         if info.get_descriptor() != atlasnode.info.get_descriptor():
-            logging.info('Node %s joined the network via %s' % (info.get_name(), via.get_name()))
+            logging.debug('Node %s joined the network via %s' % (info.get_name(), via.get_name()))
             atlasnode.nodes.register(info)
 
     def getKnownNodes(self):

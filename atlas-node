@@ -1,5 +1,21 @@
 #!/usr/bin/env python
-import atlasnode.core
+import sys
+import logging
+from atlasnode.conf import Config
+import atlasnode
+import atlasnode.log
+import atlasnode.orm
+
 
 if __name__ == '__main__':
+    atlasnode.log.init(level=logging.DEBUG)
+    config_path = sys.argv[1]
+    logging.info('Using config file %s' % config_path)
+    atlasnode.config = Config()
+    atlasnode.config.load(config_path)
+
+    # Init DB
+    atlasnode.orm.init()
+
+    import atlasnode.core
     atlasnode.core.run()

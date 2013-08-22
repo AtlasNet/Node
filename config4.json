@@ -4,24 +4,28 @@
         [
             "127.0.0.1", 
             1957
+        ], 
+        [
+            "127.0.0.1", 
+            1958
         ]
     ], 
-    "port": 1958, 
-    "name": "Test Node Two", 
+    "port": 1960, 
+    "name": "Test Node Four", 
     "database": {
         "default": {
             "ENGINE": "django.db.backends.mysql", 
             "TEST_MIRROR": null, 
-            "NAME": "atlasnode2", 
+            "NAME": "atlasnode4", 
             "TEST_CHARSET": null, 
             "TIME_ZONE": "America/Chicago", 
             "TEST_COLLATION": null, 
-            "OPTIONS": {}, 
+            "PORT": "", 
             "HOST": "localhost", 
             "USER": "root", 
             "TEST_NAME": null, 
             "PASSWORD": "123", 
-            "PORT": ""
+            "OPTIONS": {}
         }
     }
 }
