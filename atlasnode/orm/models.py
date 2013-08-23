@@ -1,4 +1,5 @@
-from passlib.hash import sha512_crypt
+import os
+from passlib.hash import md5_crypt
 
 from django.db import models
 
@@ -28,14 +29,17 @@ class Message (models.Model):
     recipient_challenge = models.TextField()
     recipient_key_hash = models.CharField(max_length=255, db_index=True)
     recipient_key = models.TextField()
+    posted = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.recipient_key_hash:
-            self.recipient_key_hash = sha512_crypt.encrypt(self.recipient_key)
+            self.recipient_key_hash = md5_crypt.encrypt(self.recipient_key, salt='').encode('base64')
+        if not self.recipient_challenge:
+            self.recipient_challenge = os.urandom(1024).encode('base64')
         models.Model.save(self, *args, **kwargs)
 
 
-class Listing (models.Model):
+class MessageListing (models.Model):
     node_host = models.CharField(max_length=255)
     node_port = models.IntegerField()
     message_id = models.IntegerField(db_index=True)
@@ -44,5 +48,5 @@ class Listing (models.Model):
 
     def save(self, *args, **kwargs):
         if not self.recipient_key_hash:
-            self.recipient_key_hash = sha512_crypt.encrypt(self.recipient_key)
+            self.recipient_key_hash = md5_crypt.encrypt(self.recipient_key, salt='').encode('base64')
         models.Model.save(self, *args, **kwargs)

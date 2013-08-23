@@ -43,6 +43,7 @@ def bootstrap():
     else:
         logging.info('Registering on the network')
         bootstrap_node.client.hello(atlasnode.info)
+        bootstrap_node.client.join()
         nodes = bootstrap_node.client.getKnownNodes()
         atlasnode.nodes.replace_all(nodes)
         logging.info('Bootstrap complete with %i nodes in the list' % len(nodes))

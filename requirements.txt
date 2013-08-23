@@ -2,3 +2,4 @@ gevent
 thrift
 Django>=1.6
 passlib
+M2Crypt
