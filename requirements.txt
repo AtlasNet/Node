@@ -1,5 +1,5 @@
 gevent
-thrift
-Django>=1.6
+thrift>=0.9.0
+Django
 passlib
 M2Crypt
