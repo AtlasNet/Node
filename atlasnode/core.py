@@ -1,7 +1,6 @@
 import logging
 import gevent
 import gevent.socket
-import random
 import signal
 import sys
 
@@ -17,6 +16,7 @@ import atlasnode
 from atlasnode.nodes import Nodes
 import atlasnode.log
 import atlasnode.orm
+from atlasnode.orm.models import MessageListing, Message
 import atlasnode.patch
 
 
@@ -48,6 +48,12 @@ def bootstrap():
             nodes = bootstrap_node.client.getKnownNodes()
         atlasnode.nodes.replace_all(nodes)
         logging.info('Bootstrap complete with %i nodes in the list' % len(nodes))
+
+    # Clean DB
+    for listing in list(MessageListing.objects.filter(node_host=atlasnode.info.host, node_port=atlasnode.info.port)):
+        if not Message.objects.filter(id=listing.message_id).exists():
+            listing.delete()
+            atlasnode.nodes.each(lambda x: x.client.unregisterMessageListing(listing.message_id))
 
 
 def run():
