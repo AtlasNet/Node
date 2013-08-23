@@ -1,5 +1,5 @@
 import gevent
-from gevent.lock import RLock
+from gevent.coros import RLock
 import logging
 
 from atlasnode.client import Client

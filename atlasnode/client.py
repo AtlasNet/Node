@@ -1,4 +1,4 @@
-from gevent.lock import RLock
+from gevent.coros import RLock
 
 from thrift.transport import TSocket
 from thrift.transport import TTransport
