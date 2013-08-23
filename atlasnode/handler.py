@@ -130,8 +130,8 @@ class Handler (object):
 
         message.delete()
         MessageListing.objects.filter(
-            node_host=atlastnode.info.host,
-            node_port=atlastnode.info.port,
+            node_host=atlasnode.info.host,
+            node_port=atlasnode.info.port,
             message_id=id,
         ).delete()
 
