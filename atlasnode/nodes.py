@@ -1,3 +1,5 @@
+import gevent
+from gevent.lock import RLock
 import logging
 
 from atlasnode.client import Client
@@ -7,20 +9,23 @@ from atlasnode.orm.models import Node
 class Nodes (object):
     def __init__(self):
         self.clients = {}
+        self.lock = RLock()
 
     def add_bootstrap_nodes(self, lst):
-        for node in lst:
-            if not Node.find(descriptor=node):
-                Node(
-                    host=node[0],
-                    port=node[1],
-                ).save()
+        with self.lock:
+            for node in lst:
+                if not Node.find(descriptor=node):
+                    Node(
+                        host=node[0],
+                        port=node[1],
+                    ).save()
 
     def replace_all(self, infos):
-        self.disconnect_all()
-        Node.objects.all().delete()
-        for info in infos:
-            self.register(info=info)
+        with self.lock:
+            self.disconnect_all()
+            Node.objects.all().delete()
+            for info in infos:
+                self.register(info=info)
 
     def list(self):
         return Node.objects.all()
@@ -43,18 +48,22 @@ class Nodes (object):
             self.clients[node.id] = Client(node)
             self.clients[node.id].connected = False
         try:
-            client = self.clients[node.id]
-            if not client.connected:
-                client.connect()
-            client.connected = True
-            client.client.ping()
-            return client
-        except Exception, e:
+            with gevent.Timeout(2):
+                client = self.clients[node.id]
+                with client.lock:
+                    if not client.connected:
+                        client.connect()
+                    client.connected = True
+                    client.client.ping()
+                return client
+        except BaseException, e:
+            import traceback; traceback.print_exc();
             if retry:
                 return self.connection(node, retry=False)
             else:
-                logging.debug('Losing node %s (%s)' % (node.get_name(), e.message))
-                self.clients.pop(node.id)
+                logging.debug('Losing node %s (%s)' % (node.get_name(), str(e)))
+                if node.id in self.clients:
+                    self.clients.pop(node.id)
                 return None
 
     def connect_all(self):
@@ -62,6 +71,15 @@ class Nodes (object):
             client = self.connection(node)
             if client:
                 yield client
+
+    def each(self, fx, timeout=2):
+        def gl(node):
+            with gevent.Timeout(timeout, False):
+                client = self.connection(node)
+                if client:
+                    with client.lock:
+                        return fx(client)
+        return [gevent.spawn(gl, node) for node in self.list()]
 
     def disconnect_all(self):
         for client in self.clients.values():

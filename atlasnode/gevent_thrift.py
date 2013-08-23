@@ -20,6 +20,7 @@ Based on gist by imlucas: https://gist.github.com/361144
 import gevent
 from gevent.server import StreamServer
 import traceback
+import socket
 
 from thrift.server.TServer import TServer
 from thrift.transport.TTransport import TTransportException, TFileObjectTransport
@@ -47,6 +48,8 @@ class TGEventServer(TServer):
             while True:
                 processor.process(iprot, oprot)
         except TTransportException:
+            pass
+        except socket.error:
             pass
         except Exception:
             traceback.print_exc()

@@ -25,9 +25,12 @@ class Handler (object):
 
     def join(self):
         logging.debug('Node %s joined the network through this node' % self.node_info.get_name())
-        for client in atlasnode.nodes.connect_all():
+
+        def notify(client):
             if client.node_info.get_descriptor() != self.node_info.get_descriptor():
                 client.client.registerNode(self.node_info, atlasnode.info)
+        atlasnode.nodes.each(notify)
+
         atlasnode.nodes.register(self.node_info)
 
     def registerNode(self, info, via):
@@ -36,11 +39,7 @@ class Handler (object):
             atlasnode.nodes.register(info)
 
     def getKnownNodes(self):
-        return [
-            x.node_info 
-            for x in atlasnode.nodes.connect_all()
-            if x.node_info.get_descriptor() != self.node_info.get_descriptor()
-        ] + [atlasnode.info]
+        return [x.get() for x in atlasnode.nodes.each(lambda x: x.node_info) if x.get()]
 
     def postMessage(self, message):
         msg = Message(
@@ -58,8 +57,7 @@ class Handler (object):
         )
         listing.save()
         
-        for client in atlasnode.nodes.connect_all():
-            client.client.registerMessageListing(msg.recipient_key, msg.id)
+        atlasnode.nodes.each(lambda x: x.client.registerMessageListing(msg.recipient_key, msg.id))
         
     def registerMessageListing(self, recipient_key, id):
         # TODO: verify node IP
@@ -123,12 +121,19 @@ class Handler (object):
         if self.auth_public_key != message.recipient_key:
             return None
         
+        logging.debug('Client retrieves message %u' % id)
+
         result = AtlasMessage()
         result.data = message.data
 
-        for client in atlasnode.nodes.connect_all():
-            client.client.unregisterMessageListing(message.id)
+        atlasnode.nodes.each(lambda x: x.client.unregisterMessageListing(id))
+
         message.delete()
+        MessageListing.objects.filter(
+            node_host=atlastnode.info.host,
+            node_port=atlastnode.info.port,
+            message_id=id,
+        ).delete()
 
         return result
 

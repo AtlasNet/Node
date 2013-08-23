@@ -2,12 +2,12 @@
     "host": "127.0.0.1", 
     "known_nodes": [
         [
-            "127.0.0.1", 
-            1957
+            "localhost", 
+            11110
         ], 
         [
-            "127.0.0.1", 
-            1958
+            "localhost", 
+            11111
         ]
     ], 
     "port": 1960, 
@@ -16,7 +16,7 @@
         "default": {
             "ENGINE": "django.db.backends.mysql", 
             "TEST_MIRROR": null, 
-            "NAME": "atlasnode4", 
+            "NAME": "atlasnode1", 
             "TEST_CHARSET": null, 
             "TIME_ZONE": "America/Chicago", 
             "TEST_COLLATION": null, 

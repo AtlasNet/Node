@@ -1,3 +1,5 @@
+from gevent.lock import RLock
+
 from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
@@ -13,6 +15,7 @@ class Client (object):
         self.transport = TTransport.TBufferedTransport(transport)
         protocol = TBinaryProtocol.TBinaryProtocol(transport)
         self.client = AtlasNode.Client(protocol)
+        self.lock = RLock()
     
     def connect(self):
         self.transport.open()
