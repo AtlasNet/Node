@@ -20,12 +20,12 @@
             "TEST_CHARSET": null, 
             "TIME_ZONE": "America/Chicago", 
             "TEST_COLLATION": null, 
-            "PORT": "", 
+            "OPTIONS": {}, 
             "HOST": "localhost", 
             "USER": "root", 
             "TEST_NAME": null, 
             "PASSWORD": "123", 
-            "OPTIONS": {}
+            "PORT": ""
         }
     }
 }
