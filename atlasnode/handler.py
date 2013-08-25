@@ -80,7 +80,7 @@ class Handler (object):
         logging.debug('Removed message listing %u by %s' % (id, self.node_info.get_name()))
 
     def getAuthChallenge(self, publicKey):
-        self.auth_public_key = publicKey
+        self.auth_public_key = publicKey.strip()
         self.auth_public_key_hash = md5_crypt.encrypt(self.auth_public_key, salt='').encode('base64')
         self.auth_complete = False
         return crypto.encrypt_rsa(self.auth_challenge, crypto.load_public_key(publicKey)).encode('base64')
