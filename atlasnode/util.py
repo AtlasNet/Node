@@ -17,3 +17,6 @@ def provide_input(fx, data):
     result = fx(f.name)
     os.unlink(f.name)
     return result
+
+def sanitize_key(pem):
+    return pem.strip().replace('\r', '')

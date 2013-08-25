@@ -1,7 +1,8 @@
 import os
 from passlib.hash import md5_crypt
-
 from django.db import models
+
+from atlasnode.util import sanitize_key
 
 
 class Node (models.Model):
@@ -32,7 +33,7 @@ class Message (models.Model):
     posted = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        self.recipient_key = self.recipient_key.strip()
+        self.recipient_key = sanitize_key(self.recipient_key)
         if not self.recipient_key_hash:
             self.recipient_key_hash = md5_crypt.encrypt(self.recipient_key, salt='').encode('base64')
         if not self.recipient_challenge:
@@ -48,7 +49,7 @@ class MessageListing (models.Model):
     recipient_key = models.TextField()
 
     def save(self, *args, **kwargs):
-        self.recipient_key = self.recipient_key.strip()
+        self.recipient_key = sanitize_key(self.recipient_key)
         if not self.recipient_key_hash:
             self.recipient_key_hash = md5_crypt.encrypt(self.recipient_key, salt='').encode('base64')
         models.Model.save(self, *args, **kwargs)
